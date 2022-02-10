@@ -14,6 +14,8 @@ import os
 import time
 
 import random
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 
 
 def decompress_pickle(file):
@@ -56,7 +58,18 @@ print("{} patents loaded in {}s".format(len(patents), t1-t0))
 # print("Cleaned in {}s".format(t1-t0))
 
 def extractKeywords(str):
-  return str.split(' ')[:NUM_KEYWORDS]
+    #calling the TfidfVectorizer
+    vectorize= TfidfVectorizer()
+    #fitting the model and passing our sentences right away:
+    claims = df['claims'].tolist()
+    claims.insert(0, claim)
+    response= vectorize.fit_transform(claims)
+    dict_of_tokens={i[1]:i[0] for i in vectorize.vocabulary_.items()}
+    row = response[0]
+    tfidf_dict ={dict_of_tokens[column]:value for (column,value) in zip(row.indices,row.data)}
+    #sort dict
+    tfidf_dict = sorted(tfidf_dict.items(), key=lambda x: x[1], reverse=True)
+    return tfidf_dict[:NUM_KEYWORDS]
 
 # returns: a tuple of the patent number,
 # a string of relevant text (for the description),
@@ -87,5 +100,3 @@ def findSimilarPatents(query, numResults):
   }
 
   for patent in matches]
-
-
