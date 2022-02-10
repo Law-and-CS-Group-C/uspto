@@ -69,6 +69,9 @@ def extractKeywords(str):
     tfidf_dict ={dict_of_tokens[column]:value for (column,value) in zip(row.indices,row.data)}
     #sort dict
     tfidf_dict = sorted(tfidf_dict.items(), key=lambda x: x[1], reverse=True)
+    #the two lines below remove the importance scores of the keywords
+    tfidf_dict = zip(*tfidf_dict)
+    tfidf_dict = list(tfidf_dict)[0]
     return tfidf_dict[:NUM_KEYWORDS]
 
 # returns: a tuple of the patent number,
