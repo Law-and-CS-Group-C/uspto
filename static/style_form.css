@@ -1,0 +1,133 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto:100,300,300i,400italic,400);
+
+html, body{
+  height:100vh;
+}
+
+body{
+  font-family:"Roboto";
+  font-size: 1.2rem;
+  color: #222;
+}
+h1, h2, h3{
+  font-weight: 100;
+}
+
+.btn{
+  font-size:1.5rem;
+}
+.page{
+  padding-top:30px;
+}
+input{
+  margin:10px;
+}
+
+.contentMain{
+  display:flex;
+  flex-direction: column;
+  height:90vh;
+}
+.contentMain form{
+  flex-grow: 1;
+  display: block;
+}
+
+.img_spinner{
+  filter: brightness(1.05);
+	width: 150px;
+	display: block;
+	margin: auto;
+		margin-top: auto;
+	margin-top: 100px;
+}
+
+
+.resultSimilarity {
+  font-weight: 600;
+  font-size: 2rem;
+  min-width: 80px;
+  text-align: center;
+  padding-top: 10px;
+  color: #f44e4e;
+}
+
+.searchResult {
+  display: flex;
+  border-bottom: solid 2px #ddd;
+  padding: 13px 0;
+}
+
+.resultTitle {
+  font-size: 1.5rem;
+}
+
+.resultSubtitle {
+  font-size: 1rem;
+  color: #777;
+}
+
+
+
+
+
+
+
+
+input[type=radio]{
+  width:32px;
+  height:32px;
+  margin:10px;
+}
+
+
+.contentBottom{
+  display:flex;
+  justify-content: center;
+  padding-bottom:30px;
+}
+
+.rainbow{
+		animation: rainbow 500ms linear;
+		animation-iteration-count: infinite;
+}
+
+
+@keyframes rainbow{
+		100%,0%{
+			color: rgb(255,0,0);
+		}
+		8%{
+			color: rgb(255,127,0);
+		}
+		16%{
+			color: rgb(255,255,0);
+		}
+		25%{
+			color: rgb(127,255,0);
+		}
+		33%{
+			color: rgb(0,255,0);
+		}
+		41%{
+			color: rgb(0,255,127);
+		}
+		50%{
+			color: rgb(0,255,255);
+		}
+		58%{
+			color: rgb(0,127,255);
+		}
+		66%{
+			color: rgb(0,0,255);
+		}
+		75%{
+			color: rgb(127,0,255);
+		}
+		83%{
+			color: rgb(255,0,255);
+		}
+		91%{
+			color: rgb(255,0,127);
+		}
+}

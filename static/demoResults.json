@@ -1,0 +1,62 @@
+[
+  {
+    "patent": {
+      "id": "TW300973B",
+      "applicant": "NINTENDO CO LTD",
+      "date": "1997-03-21",
+      "title": "Game device and system using such game device"
+    },
+    "relevantText" : "A game device with multiple operating devices, which can modulate operating data and execute image processing includes: CPU for executing the image processing; memory device for accessing data; <b>receiving mechanism for receiving and modulating the data; timing memory for timing</b>; data processor for executing data process; sending mechanism for modulating and sending data; in which, the CPU can output ordering data; and by data processor to output it to emitter. The timing memory will memorize and schedule the operating data, which is received by receiver, then output to action storage.",
+    "similarity": 0.68
+  },
+  {
+    "patent": {
+      "id": "TW300973B",
+      "applicant": "NINTENDO CO LTD",
+      "date": "1997-03-21",
+      "title": "Game device and system using such game device"
+    },
+    "relevantText" : "A game device with multiple operating devices, which can modulate operating data and execute image processing includes: CPU for executing the image processing; memory device for accessing data; <b>receiving mechanism for receiving and modulating the data; timing memory for timing</b>; data processor for executing data process; sending mechanism for modulating and sending data; in which, the CPU can output ordering data; and by data processor to output it to emitter. The timing memory will memorize and schedule the operating data, which is received by receiver, then output to action storage.",
+    "similarity": 0.63
+  },
+  {
+    "patent": {
+      "id": "TW300973B",
+      "applicant": "NINTENDO CO LTD",
+      "date": "1997-03-21",
+      "title": "Game device and system using such game device"
+    },
+    "relevantText" : "A game device with multiple operating devices, which can modulate operating data and execute image processing includes: CPU for executing the image processing; memory device for accessing data; <b>receiving mechanism for receiving and modulating the data; timing memory for timing</b>; data processor for executing data process; sending mechanism for modulating and sending data; in which, the CPU can output ordering data; and by data processor to output it to emitter. The timing memory will memorize and schedule the operating data, which is received by receiver, then output to action storage.",
+    "similarity": 0.58
+  },
+  {
+    "patent": {
+      "id": "TW300973B",
+      "applicant": "NINTENDO CO LTD",
+      "date": "1997-03-21",
+      "title": "Game device and system using such game device"
+    },
+    "relevantText" : "A game device with multiple operating devices, which can modulate operating data and execute image processing includes: CPU for executing the image processing; memory device for accessing data; <b>receiving mechanism for receiving and modulating the data; timing memory for timing</b>; data processor for executing data process; sending mechanism for modulating and sending data; in which, the CPU can output ordering data; and by data processor to output it to emitter. The timing memory will memorize and schedule the operating data, which is received by receiver, then output to action storage.",
+    "similarity": 0.51
+  },
+  {
+    "patent": {
+      "id": "TW300973B",
+      "applicant": "NINTENDO CO LTD",
+      "date": "1997-03-21",
+      "title": "Game device and system using such game device"
+    },
+    "relevantText" : "A game device with multiple operating devices, which can modulate operating data and execute image processing includes: CPU for executing the image processing; memory device for accessing data; <b>receiving mechanism for receiving and modulating the data; timing memory for timing</b>; data processor for executing data process; sending mechanism for modulating and sending data; in which, the CPU can output ordering data; and by data processor to output it to emitter. The timing memory will memorize and schedule the operating data, which is received by receiver, then output to action storage.",
+    "similarity": 0.45
+  },
+  {
+    "patent": {
+      "id": "TW300973B",
+      "applicant": "NINTENDO CO LTD",
+      "date": "1997-03-21",
+      "title": "Game device and system using such game device"
+    },
+    "relevantText" : "A game device with multiple operating devices, which can modulate operating data and execute image processing includes: CPU for executing the image processing; memory device for accessing data; <b>receiving mechanism for receiving and modulating the data; timing memory for timing</b>; data processor for executing data process; sending mechanism for modulating and sending data; in which, the CPU can output ordering data; and by data processor to output it to emitter. The timing memory will memorize and schedule the operating data, which is received by receiver, then output to action storage.",
+    "similarity": 0.42
+  }
+]
