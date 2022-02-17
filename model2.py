@@ -26,22 +26,22 @@ def decompress_pickle(file):
 print("Loading input data...")
 t0 = time.time()
 
-# patents = []
-# i=0
-# for file in os.listdir('pickled'):
-#   print("opening {}".format(file))
-#   weekData = decompress_pickle('pickled/'+file)
-#   patents += weekData
-#   # break
-#   i+=1
-#   if i==INPUT_WEEKS: break
+patentsById = {}
+i=0
+for file in os.listdir('pickled'):
+  print("opening {}".format(file))
+  weekData = decompress_pickle('pickled/'+file)
 
-pikd = open('testdata.pickle', 'rb')
-patents = pickle.load(pikd)
-pikd.close()
+  patentsById |= { patent['patentNum']:patent
+    for patent in weekData
+    if patent!=None
+  }
+  i+=1
+  if i==INPUT_WEEKS: break
+
 
 t1 = time.time()
-print("{} patents loaded in {}s".format(len(patents), t1-t0))
+print("{} patents loaded in {}s".format(len(patentsById), t1-t0))
 
 
 # def cleanText2(text):
@@ -78,28 +78,36 @@ def extractKeywords(str):
 # a string of relevant text (for the description),
 # and the similarity score.
 def findKNearestKeywordSet(dataset, query, k):
-  return [(patent[0], ' '.join(patent[1]), random.random())
+  return [{
+      'id'    : patent[0],
+      'text'  : ' '.join(patent[1]),
+      'score' : random.random()
+    }
     for patent in dataset[:k]]
 
 patentKeywords = [
   (patent['patentNum'], extractKeywords('\n'.join(patent['claims'])))
-  for patent in patents
+  for patent in patentsById.values()
 ]
 
 def findSimilarPatents(query, numResults):
   queryKeywords = extractKeywords(query)
   matches = findKNearestKeywordSet(patentKeywords, queryKeywords, numResults)
 
-  # TODO augment patents with date/applicant/name here
-  return [{
-    "patent": {
-      "id": patent[0],
-      "applicant": "APPLICANT APPLICANT",
-      "date": "1970-01-01",
-      "title": "NAME NAME NAME NAME"
-    },
-    "relevantText" : patent[1],
-    "similarity": patent[2]
-  }
+  results = []
+  for match in matches:
+    patent = patentsById[match['id']]
+    date = patent['date']
+    datePrettier = "{}-{}-{}".format(date[:4], date[4:6], date[6:])
+    results.append({
+      "patent": {
+        "id": match['id'],
+        "applicant": patent['applicant'],
+        "date": datePrettier,
+        "title": patent['title']
+      },
+      "relevantText" : match['text'],
+      "similarity": match['score']
+    })
 
-  for patent in matches]
+  return results
