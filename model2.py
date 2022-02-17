@@ -1,7 +1,7 @@
 # patent search attempt 2
 # uses TF-IDF and sematch keyword comparison
 
-INPUT_WEEKS = 3
+INPUT_WEEKS = 1
 
 NUM_KEYWORDS = 10 # how many keywords to take from TF-IDF
 
@@ -44,35 +44,92 @@ t1 = time.time()
 print("{} patents loaded in {}s".format(len(patentsById), t1-t0))
 
 
-# def cleanText2(text):
-#     text = re.sub(r'<[^>]*>', r' ', text)
-#     text = re.sub(r'\|\|\|', r' ', text)
-#     text = re.sub(r'http\S+', r'<URL>', text)
-#     text = text.lower()
-#     return text
-#
-# print("Cleaning text...")
-# t0 = time.time()
-# df['claims'] = df['claims'].apply(cleanText2)
-# t1 = time.time()
-# print("Cleaned in {}s".format(t1-t0))
+### TF-IDF PRECALC
+# (running the full tfidf on each search is too expensive O(n),
+# so we precalc the tf-idf values of every word in the dataset
+# then precalc the keywords of every patent
+def tf(t,d):
+  # count of t in d / number of words in d
+  # t is a word, d is a list of words (to avoid repeated splitting)
+  return d.count(t)/len(d)
 
-def extractKeywords(str):
-    #calling the TfidfVectorizer
-    vectorize= TfidfVectorizer()
-    #fitting the model and passing our sentences right away:
-    claims = df['claims'].tolist()
-    claims.insert(0, claim)
-    response= vectorize.fit_transform(claims)
-    dict_of_tokens={i[1]:i[0] for i in vectorize.vocabulary_.items()}
-    row = response[0]
-    tfidf_dict ={dict_of_tokens[column]:value for (column,value) in zip(row.indices,row.data)}
-    #sort dict
-    tfidf_dict = sorted(tfidf_dict.items(), key=lambda x: x[1], reverse=True)
-    #the two lines below remove the importance scores of the keywords
-    tfidf_dict = zip(*tfidf_dict)
-    tfidf_dict = list(tfidf_dict)[0]
-    return tfidf_dict[:NUM_KEYWORDS]
+def strToWordList(s):
+  return s.replace('\n',' ').replace(r';|,|\.|:|\(|\)','').split(' ')
+
+
+#first calculate the doc freq of all words
+# (ie how many docs each word appears in)
+t0 = time.time()
+from collections import Counter
+df = Counter()
+# df = {}
+for patent in patentsById.values():
+  fullText = ' '.join(patent['claims']) + ' '+ patent['description']
+  wordList = strToWordList(fullText)
+  patent['wordList'] = wordList #to reuse later :)
+  wordSet = set(wordList)
+  df.update(wordSet)
+
+t1 = time.time()
+print("df calced in {}s".format(t1-t0))
+t0 = time.time()
+
+# now make the idf of these terms
+import math
+numDocs = len(patentsById)
+idfDict = {}
+for word in df:
+  idfDict[word] = math.log(numDocs/df[word])
+del(df)
+highestIdf = max(idfDict.values())
+t1 = time.time()
+print("tfidf prep done in {}s".format( t1-t0))
+
+def tfIdf(t,d):
+  # if t isn't in the dict, assume it has very high
+  try:
+    return tf(t,d) * idfDict[t]
+  except keyError:
+    return tf(t,d) * highestIdf
+
+# i=0
+# for w in idfDict:
+#   print(w,idfDict[w])
+#   i+=1
+#   if i>10:break
+
+def extractKeywordsFast(wordList):
+  wordSet = set(wordList)
+
+  # scores = [(word, tfIdf(word, wordList)) for word in wordSet]
+  length = len(wordList)
+  scores = [(word, (wordList.count(word)/length) * idfDict[word]) for word in wordSet if word != ''] # function unfolding for speeeed
+
+  scores.sort(key=lambda x:x[1])
+  out = [w[0] for w in scores[-NUM_KEYWORDS:]]
+  # print(out)
+  return out
+
+def extractKeywordsSafe(wordList):
+  wordSet = set(wordList)
+  scores = [(word, tfIdf(word, wordList)) for word in wordSet if word != '']
+  scores.sort(key=lambda x:x[1])
+  out = [w[0] for w in scores[-NUM_KEYWORDS:]]
+  # print(out)
+  return out
+
+t0 = time.time()
+patentKeywords = [
+  (patent['patentNum'], extractKeywordsFast(patent['wordList']))
+  for patent in patentsById.values()
+]
+t1 = time.time()
+print("dataset keyword calc done in {}s".format( t1-t0))
+
+
+#### END TF-IDF
+
+
 
 # returns: a tuple of the patent number,
 # a string of relevant text (for the description),
@@ -85,13 +142,9 @@ def findKNearestKeywordSet(dataset, query, k):
     }
     for patent in dataset[:k]]
 
-patentKeywords = [
-  (patent['patentNum'], extractKeywords('\n'.join(patent['claims'])))
-  for patent in patentsById.values()
-]
 
 def findSimilarPatents(query, numResults):
-  queryKeywords = extractKeywords(query)
+  queryKeywords = extractKeywordsSafe(strToWordList(query))
   matches = findKNearestKeywordSet(patentKeywords, queryKeywords, numResults)
 
   results = []
