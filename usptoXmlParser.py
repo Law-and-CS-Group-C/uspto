@@ -8,6 +8,8 @@ import time
 import os
 import os.path
 
+DELETE_FILES = True
+
 
 # Pickle a file and then compress it into a file with extension
 # https://betterprogramming.pub/load-fast-load-big-with-compressed-pickles-5f311584507e
@@ -33,7 +35,23 @@ def handlePatentXml(patentStr):
     return
 
   patentNum = root.find('us-bibliographic-data-grant').find('publication-reference').find('document-id').find('doc-number').text
+  datePublished = root.find('us-bibliographic-data-grant').find('publication-reference').find('document-id').find('date').text
+  patentTitle = root.find('us-bibliographic-data-grant').find('invention-title').text
   # print(patentNum)
+
+  firstApplicant =  list(root.find('us-bibliographic-data-grant').find('us-parties').find('us-applicants').iter('us-applicant'))[0].find('addressbook')
+  if firstApplicant.find('orgname') != None:
+    applicantName = firstApplicant.find('orgname').text
+  elif firstApplicant.find('first-name') != None:
+    applicantName = "{}, {}".format(
+      firstApplicant.find('last-name').text,
+      firstApplicant.find('first-name').text
+    )
+  else:
+    applicantName = firstApplicant.find('last-name').text
+
+
+  # print(patentTitle, datePublished, applicantName)
 
   # DESCRIPTION
 
@@ -58,6 +76,9 @@ def handlePatentXml(patentStr):
     'patentNum' : patentNum,
     'description' : description,
     'claims' : claims,
+    'applicant' : applicantName,
+    'title' : patentTitle,
+    'date' : datePublished,
   }
 
 def handleXmlCollection(f):
@@ -93,6 +114,13 @@ def extractXml(path):
   output.close()
 
 
+def deleteFile(filename):
+  if DELETE_FILES:
+    try:
+      os.remove(filename) # delete zip
+    except:
+      pass
+
 with open('links.txt') as f:
   for url in f:
     filename = url[url.rfind('/')+1:].strip()
@@ -101,14 +129,8 @@ with open('links.txt') as f:
 
     if os.path.isfile('pickled/'+pickleFilename):
       print("{} already exists".format(pickleFilename))
-      try:
-        os.remove('downloads/'+filename) # delete zip
-      except:
-        pass
-      try:
-        os.remove('downloads/'+xmlFilename) # delete xml
-      except:
-        pass
+      deleteFile('downloads/'+filename) # delete zip
+      deleteFile('downloads/'+xmlFilename) # delete xml
       continue
 
     if os.path.isfile('downloads/'+filename):
@@ -128,12 +150,11 @@ with open('links.txt') as f:
     with open('downloads/'+xmlFilename) as f:
       patents = handleXmlCollection(f)
     print(len(patents))
+    print("writing {}.pbz2".format(filename[:-4]))
     compressed_pickle('pickled/'+filename[:-4], patents)
 
-    # exit()
-
-    os.remove('downloads/'+filename) # delete zip
-    os.remove('downloads/'+xmlFilename) # delete xml
+    deleteFile('downloads/'+filename) # delete zip
+    deleteFile('downloads/'+xmlFilename) # delete xml
 
 
 
