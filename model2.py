@@ -1,7 +1,7 @@
 # patent search attempt 2
 # uses TF-IDF and sematch keyword comparison
 
-INPUT_WEEKS = 3
+INPUT_WEEKS = 1
 
 NUM_KEYWORDS = 10 # how many keywords to take from TF-IDF
 
@@ -14,8 +14,83 @@ import _pickle as cPickle
 import os
 import time
 
-import random
-from sklearn.feature_extraction.text import TfidfVectorizer
+
+
+#### SEMATCH
+
+import nltk
+nltk.download('wordnet')
+nltk.download('wordnet_ic')
+nltk.download('omw-1.4')
+
+t0 = time.time()
+from sematch.semantic.similarity import WordNetSimilarity
+wns = WordNetSimilarity()
+t1=time.time()
+print("sematch dataset loaded in {}s".format( t1-t0))
+
+
+def get_word_list_similarity(w1, w2):
+  total_similarity = 0
+  pairs = []
+  for w in w1:
+
+    best_word = None
+    best_sim = 0
+
+    # find best word pair
+    for m in w2:
+      sim = wns.word_similarity(w, m, 'lin')
+      if sim > best_sim:
+        best_sim = sim
+        best_word = m
+
+    pairs.append((w, best_word, best_sim))
+    total_similarity += best_sim
+
+  return total_similarity / len(w1)
+
+print(get_word_list_similarity(
+  ['as','system','described','design','shown','ornamental','support','block','pipe','wedge'],
+  ['as','system','described','design','shown','ornamental','support','block','pipe','wedge'],
+))
+
+print(get_word_list_similarity(
+  ['as','system','described','design','shown','ornamental','support','block','pipe','wedge'],
+  ['and', 'a', 'for', 'as', 'described', 'design', 'shown', 'ornamental', 'product', 'pizza']
+))
+
+
+
+# returns: a tuple of the patent number,
+# a string of relevant text (for the description),
+# and the similarity score.
+def findKNearestKeywordSet(dataset, queryKeywords, k):
+  nearest = [(None, 0, None)] * k
+  for patent in dataset:
+    patentId = patent[0]
+    keywords = patent[1]
+
+    score = get_word_list_similarity(keywords, queryKeywords)
+    if score<nearest[-1][1]:
+      continue #not in the top k
+    else:
+      #insert into nearest, maintaining sort
+      del(nearest[-1])
+      insertAt = 0
+      while insertAt < k-1 and score < nearest[insertAt][1]:
+        insertAt +=1
+      nearest.insert(insertAt, (patentId, score, keywords))
+
+  return [{
+      'id'    : match[0],
+      'text'  : ' '.join(match[2]), #todo add explainable output
+      'score' : match[1]
+    }
+    for match in nearest]
+
+#### END SEMATCH
+
 
 
 
@@ -133,19 +208,6 @@ print("dataset keyword calc done in {}s".format( t1-t0))
 #### END TF-IDF
 
 
-
-# returns: a tuple of the patent number,
-# a string of relevant text (for the description),
-# and the similarity score.
-def findKNearestKeywordSet(dataset, query, k):
-  return [{
-      'id'    : patent[0],
-      'text'  : ' '.join(patent[1]), #TODO fix (this is the tfidf keywords in some random order)
-      'score' : random.random()
-    }
-    for patent in dataset[:k]] #PLACEHOLDER
-
-
 def findSimilarPatents(query, numResults):
   queryKeywords = extractKeywordsSafe(strToWordList(query))
   matches = findKNearestKeywordSet(patentKeywords, queryKeywords, numResults)
@@ -169,5 +231,6 @@ def findSimilarPatents(query, numResults):
       "relevantText" : truncatedText,
       "similarity": match['score']
     })
+    print(match['text'])
 
   return results

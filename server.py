@@ -32,15 +32,13 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
       self.args = dict(urllib.parse.parse_qsl(self.query_string))
 
       query = self.args['q']
-
       print(query)
 
+      t0 = time.time()
       results = findSimilarPatents(query, NUM_RESULTS)
       self.wfile.write(json.dumps(results).encode())
-
-      # f = open('static/demoResults.json', 'rb')
-      # self.wfile.write(f.read())
-      # f.close()
+      t1 = time.time()
+      print("Response given in {}s".format(t1-t0))
 
     else:
       self.send_response(404)
