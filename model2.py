@@ -54,7 +54,7 @@ def tf(t,d):
   return d.count(t)/len(d)
 
 def strToWordList(s):
-  return s.replace('\n',' ').replace(r';|,|\.|:|\(|\)','').split(' ')
+  return s.replace('\n',' ').replace(r';|,|\.|:|\(|\)','').lower().split(' ')
 
 
 #first calculate the doc freq of all words
@@ -64,10 +64,12 @@ from collections import Counter
 df = Counter()
 # df = {}
 for patent in patentsById.values():
-  fullText = ' '.join(patent['claims']) + ' '+ patent['description']
+  # fullText = ' '.join(patent['claims']) + ' '+ patent['description']
+  fullText = ' '.join(patent['claims'])
   wordList = strToWordList(fullText)
-  patent['wordList'] = wordList #to reuse later :)
   wordSet = set(wordList)
+  patent['wordList'] = wordList #to reuse later :)
+  patent['wordSet'] = wordSet
   df.update(wordSet)
 
 t1 = time.time()
@@ -89,7 +91,7 @@ def tfIdf(t,d):
   # if t isn't in the dict, assume it has very high
   try:
     return tf(t,d) * idfDict[t]
-  except keyError:
+  except KeyError:
     return tf(t,d) * highestIdf
 
 # i=0
@@ -98,16 +100,14 @@ def tfIdf(t,d):
 #   i+=1
 #   if i>10:break
 
-def extractKeywordsFast(wordList):
-  wordSet = set(wordList)
-
+def extractKeywordsFast(wordList, wordSet):
   # scores = [(word, tfIdf(word, wordList)) for word in wordSet]
   length = len(wordList)
   scores = [(word, (wordList.count(word)/length) * idfDict[word]) for word in wordSet if word != ''] # function unfolding for speeeed
 
   scores.sort(key=lambda x:x[1])
   out = [w[0] for w in scores[-NUM_KEYWORDS:]]
-  # print(out)
+  #print(out)
   return out
 
 def extractKeywordsSafe(wordList):
@@ -115,12 +115,12 @@ def extractKeywordsSafe(wordList):
   scores = [(word, tfIdf(word, wordList)) for word in wordSet if word != '']
   scores.sort(key=lambda x:x[1])
   out = [w[0] for w in scores[-NUM_KEYWORDS:]]
-  # print(out)
+  print(out)
   return out
 
 t0 = time.time()
 patentKeywords = [
-  (patent['patentNum'], extractKeywordsFast(patent['wordList']))
+  (patent['patentNum'], extractKeywordsFast(patent['wordList'], patent['wordSet']))
   for patent in patentsById.values()
 ]
 t1 = time.time()
@@ -137,10 +137,10 @@ print("dataset keyword calc done in {}s".format( t1-t0))
 def findKNearestKeywordSet(dataset, query, k):
   return [{
       'id'    : patent[0],
-      'text'  : ' '.join(patent[1]),
+      'text'  : ' '.join(patent[1]), #TODO fix (this is the tfidf keywords in some random order)
       'score' : random.random()
     }
-    for patent in dataset[:k]]
+    for patent in dataset[:k]] #PLACEHOLDER
 
 
 def findSimilarPatents(query, numResults):
