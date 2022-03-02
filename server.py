@@ -1,6 +1,10 @@
 # webserver for patent search
 
 NUM_RESULTS = 10
+PORT = 8888
+
+import time
+t_0 = time.time()
 
 import http.server
 import socketserver
@@ -9,7 +13,6 @@ import json
 
 from model2 import findSimilarPatents
 
-PORT = 8888
 
 class Server(socketserver.TCPServer):
     allow_reuse_address = True
@@ -47,6 +50,9 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
 Handler = MyHttpRequestHandler
 
 with Server(("", PORT), Handler) as httpd:
+  t_1 = time.time()
+  print("Server ready in {}s".format(t_1-t_0))
+
   print("serving at port", PORT)
   try:
     httpd.serve_forever()

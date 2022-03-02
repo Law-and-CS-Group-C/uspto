@@ -1,10 +1,11 @@
 # patent search attempt 2
 # uses TF-IDF and sematch keyword comparison
 
-INPUT_WEEKS = 1
+INPUT_WEEKS = 3
 
 NUM_KEYWORDS = 10 # how many keywords to take from TF-IDF
 
+PREVIEW_MAX_WORDS = 50 # how long the search result text should be
 
 import time
 import bz2
@@ -53,8 +54,10 @@ def tf(t,d):
   # t is a word, d is a list of words (to avoid repeated splitting)
   return d.count(t)/len(d)
 
+import re
 def strToWordList(s):
-  return s.replace('\n',' ').replace(r';|,|\.|:|\(|\)','').lower().split(' ')
+  s = re.sub(r'[;,\.:\(\)]', '',s)
+  return s.replace('\n',' ').lower().split(' ')
 
 
 #first calculate the doc freq of all words
@@ -150,6 +153,10 @@ def findSimilarPatents(query, numResults):
   results = []
   for match in matches:
     patent = patentsById[match['id']]
+
+    fullText = (' '.join(patent['claims']) + ' ' + patent['description'])
+    truncatedText = ' '.join(fullText.split(' ')[:PREVIEW_MAX_WORDS])
+
     date = patent['date']
     datePrettier = "{}-{}-{}".format(date[:4], date[4:6], date[6:])
     results.append({
@@ -159,7 +166,7 @@ def findSimilarPatents(query, numResults):
         "date": datePrettier,
         "title": patent['title']
       },
-      "relevantText" : match['text'],
+      "relevantText" : truncatedText,
       "similarity": match['score']
     })
 
