@@ -32,7 +32,8 @@ print("sematch dataset loaded in {}s".format( t1-t0))
 
 def get_word_list_similarity(w1, w2):
   total_similarity = 0
-  pairs = []
+  compared = 0
+  # pairs = []
   for w in w1:
 
     best_word = None
@@ -40,25 +41,19 @@ def get_word_list_similarity(w1, w2):
 
     # find best word pair
     for m in w2:
-      sim = wns.word_similarity(w, m, 'lin')
+      sim = 1.0 if w==m else wns.word_similarity(w, m, 'lin')
+
       if sim > best_sim:
         best_sim = sim
         best_word = m
 
-    pairs.append((w, best_word, best_sim))
-    total_similarity += best_sim
+    if best_word != None:
+      # pairs.append((w, best_word, best_sim))
+      total_similarity += best_sim
+      compared += 1
 
-  return total_similarity / len(w1)
+  return 0 if compared == 0 else total_similarity / compared
 
-print(get_word_list_similarity(
-  ['as','system','described','design','shown','ornamental','support','block','pipe','wedge'],
-  ['as','system','described','design','shown','ornamental','support','block','pipe','wedge'],
-))
-
-print(get_word_list_similarity(
-  ['as','system','described','design','shown','ornamental','support','block','pipe','wedge'],
-  ['and', 'a', 'for', 'as', 'described', 'design', 'shown', 'ornamental', 'product', 'pizza']
-))
 
 
 
@@ -131,7 +126,7 @@ def tf(t,d):
 
 import re
 def strToWordList(s):
-  s = re.sub(r'[;,\.:\(\)]', '',s)
+  s = re.sub(r'[;,\.:\(\)\r]', '',s)
   return s.replace('\n',' ').lower().split(' ')
 
 
