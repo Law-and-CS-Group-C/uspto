@@ -26,7 +26,8 @@
     </h1>
     <form id="form_search" method="POST">
       <textarea rows="5" cols="60" name="q" placeholder="Enter a description of your patent..."></textarea> </br>
-      <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike"> I understand & agree to the Terms of Service and Privacy Policy <br /><br />
+      <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+      <label for="vehicle1">I understand & agree to the Terms of Service and Privacy Policy<span style="color:red;">*</span></label> <br /><br />
       <!-- <input name="q" type="text"><br /> -->
       <button class="btn btn-primary mb-3" type="submit" value="Submit">Search</button>
     </form>
@@ -82,7 +83,18 @@
 
 
   </div>
+  <br />
+  <center>
+    <div class="btn-group" role="group" aria-label="Basic example">
+      <button type="button" class="btn btn-primary" disabled>Prev</button>
+      <button type="button" class="btn btn-light">1</button>
+      <button type="button" class="btn btn-primary">Next</button>
+    </div>
+  </center>
 
+  <button class="btn btn-light" onclick="window.history.back();">Back to search</button>
+  <br />
+  <br />
 </div>
 
   </div>
@@ -165,10 +177,14 @@ $('#form_search').submit(ev=>{
       $('.relevanceHighlight').html(highlightHtml);
 
       showPage('results');
+      history.pushState(null, null, '?results')
 
     },
     error: e => {console.log(e);}
   })
+});
+window.addEventListener("popstate", function(e) {
+  window.location.reload(false);
 });
 </script>
 </html>
