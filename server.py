@@ -35,11 +35,12 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
       print(query)
 
       t0 = time.time()
-      results = findSimilarPatents(query, NUM_RESULTS)
+      results, similarKeywords = findSimilarPatents(query, NUM_RESULTS)
       highlight = tfidfSentence(query)
       response = {
         'searchResults' : results,
         'relevanceHighlight' : highlight,
+        'similarKeywords' : similarKeywords
       }
       self.wfile.write(json.dumps(response).encode())
       t1 = time.time()

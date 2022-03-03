@@ -173,6 +173,23 @@ def tfIdf(t,d):
 #   i+=1
 #   if i>10:break
 
+# pre-load the dictionary so we can find similar keywords quickly
+def readDict(dict_file):
+    with open(dict_file,'r') as f:
+        words=[]
+        for line in f:
+            word=line.strip()
+            m=words.append(word)
+        return words
+dict = readDict("2of4brif_dict.txt")
+
+# function to find k synonyms for some word using the dictionary and sematch similarity measure
+def kSimilarWords(word, k):
+    words = [(w, sim) for w in dict if (sim := 1.0 if w==word else wns.word_similarity(w, word, 'lin'))]
+    words.sort(key=lambda x:x[1], reverse=True)
+    words = list(zip(*words))[0]
+    return words[:k]
+
 def extractKeywordsFast(wordList, wordSet):
   # scores = [(word, tfIdf(word, wordList)) for word in wordSet]
   length = len(wordList)
@@ -228,7 +245,15 @@ def findSimilarPatents(query, numResults):
     })
     print(match['text'])
 
-  return results
+    similarKeywords = []
+    for keyword in queryKeywords:
+        synonyms = kSimilarWords(keyword, 10)
+        similarKeywords.append({
+          "patentKeyword" : keyword,
+          "synonyms": synonyms
+        })
+
+  return results, similarKeywords
 
 def tfidfSentence(query):
   wordList = strToWordList(query)
