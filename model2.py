@@ -229,3 +229,8 @@ def findSimilarPatents(query, numResults):
     print(match['text'])
 
   return results
+
+def tfidfSentence(query):
+  wordList = strToWordList(query)
+  scores = [(word, tfIdf(word, wordList)) for word in wordList if word != '']
+  return scores

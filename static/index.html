@@ -40,6 +40,11 @@
 </div>
 
 <div class="page" id="page_results">
+  <h2>Query keyword extraction</h2>
+  <i>
+    <div class="relevanceHighlight" style="padding-left:20px;"></div>
+  </i>
+  <br />
   <h1>Showing top 10 matches:</h1>
   <div class="results">
     <div class="searchResult">
@@ -131,12 +136,12 @@ $('#form_search').submit(ev=>{
 
       var resultsHtml = '';
 
-      response.forEach(result => {
+      response['searchResults'].forEach(result => {
         const hue = lerp(100,0,result['similarity']);
 
         newElem = `
 <div class="searchResult">
-  <span class="resultSimilarity" style="color:hsl(${hue}deg,92%,40%">${Math.round(result['similarity']*100)}%</span>
+  <span class="resultSimilarity" style="color:hsl(${hue}deg,92%,40%">${Math.round(result['similarity']*100-1)}%</span>
   <div class="resultInfo">
     <!--<div class="resultTitle"><a href="/patent?id=${result['patent']['id']}">${result['patent']['title']}</a></div>-->
     <div class="resultTitle"><a target="_blank" href="https://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO2&Sect2=HITOFF&p=1&u=%2Fnetahtml%2FPTO%2Fsearch-bool.html&r=1&f=G&l=50&co1=AND&d=PTXT&s1=${result['patent']['id']}">${result['patent']['title']}</a></div>
@@ -150,6 +155,15 @@ $('#form_search').submit(ev=>{
       });
 
       $('.results').html(resultsHtml);
+
+      highlightHtml = '';
+      response['relevanceHighlight'].forEach( x => {
+        console.log(x);
+        var lightness = lerp(100,50, Math.sqrt(x[1]));
+        highlightHtml += `<span style="background-color:hsl(90deg,50%,${lightness}%)">${x[0]}</span> `
+      });
+      $('.relevanceHighlight').html(highlightHtml);
+
       showPage('results');
 
     },

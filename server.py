@@ -11,7 +11,7 @@ import socketserver
 import urllib
 import json
 
-from model2 import findSimilarPatents
+from model2 import findSimilarPatents, tfidfSentence
 
 
 class Server(socketserver.TCPServer):
@@ -36,7 +36,12 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
 
       t0 = time.time()
       results = findSimilarPatents(query, NUM_RESULTS)
-      self.wfile.write(json.dumps(results).encode())
+      highlight = tfidfSentence(query)
+      response = {
+        'searchResults' : results,
+        'relevanceHighlight' : highlight,
+      }
+      self.wfile.write(json.dumps(response).encode())
       t1 = time.time()
       print("Response given in {}s".format(t1-t0))
 
