@@ -5,6 +5,8 @@ INPUT_WEEKS = 1
 
 NUM_KEYWORDS = 10 # how many keywords to take from TF-IDF
 
+NUM_SYNONYMS = 5 # how many keywords to take from TF-IDF
+
 PREVIEW_MAX_WORDS = 50 # how long the search result text should be
 
 import time
@@ -181,14 +183,25 @@ def readDict(dict_file):
             word=line.strip()
             m=words.append(word)
         return words
+
 dict = readDict("2of4brif_dict.txt")
 
 # function to find k synonyms for some word using the dictionary and sematch similarity measure
 def kSimilarWords(word, k):
-    words = [(w, sim) for w in dict if (sim := 1.0 if w==word else wns.word_similarity(w, word, 'lin'))]
-    words.sort(key=lambda x:x[1], reverse=True)
-    words = list(zip(*words))[0]
-    return words[:k]
+  nearest = [('', 0.001)] * k
+  for w in dict:
+    score = wns.word_similarity(w, word, 'lin')
+    if score<nearest[-1][1]:
+      continue #not in the top k
+    else:
+      #insert into nearest, maintaining sort
+      del(nearest[-1])
+      insertAt = 0
+      while insertAt < k-1 and score < nearest[insertAt][1]:
+        insertAt +=1
+      nearest.insert(insertAt, (w, score))
+
+  return [n[0] for n in nearest]
 
 def extractKeywordsFast(wordList, wordSet):
   # scores = [(word, tfIdf(word, wordList)) for word in wordSet]
@@ -247,7 +260,7 @@ def findSimilarPatents(query, numResults):
 
     similarKeywords = []
     for keyword in queryKeywords:
-        synonyms = kSimilarWords(keyword, 10)
+        synonyms = kSimilarWords(keyword, NUM_SYNONYMS)
         similarKeywords.append({
           "patentKeyword" : keyword,
           "synonyms": synonyms
